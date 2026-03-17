@@ -188,21 +188,29 @@ async function startServer() {
   // User Login
   app.post("/api/login", (req, res) => {
     const { name, contact } = req.body;
+    
+    if (!name) {
+      return res.status(400).json({ message: "Name is required for login" });
+    }
+
     const db = getDb();
-    let user = db.users.find((u: any) => u.name === name && u.contact === contact);
+    let user = db.users.find((u: any) => 
+      u.name?.toLowerCase() === name.toLowerCase() && 
+      (!contact || u.contact === contact)
+    );
 
     if (!user) {
       // Auto-register if user doesn't exist
       user = { 
         name, 
-        contact, 
+        contact: contact || "Not Provided", 
         age: "25", 
         gender: "Not Specified",
         id: Date.now() 
       };
       db.users.push(user);
       saveDb(db);
-      console.log(`Auto-registered new user: ${name}`);
+      console.log(`Auto-registered new user on login: ${name}`);
     }
 
     res.json({ message: "Login Success", user });
