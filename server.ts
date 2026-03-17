@@ -156,13 +156,23 @@ async function startServer() {
   app.post("/api/login", (req, res) => {
     const { name, contact } = req.body;
     const db = getDb();
-    const user = db.users.find((u: any) => u.name === name && u.contact === contact);
+    let user = db.users.find((u: any) => u.name === name && u.contact === contact);
 
-    if (user) {
-      res.json({ message: "Login Success", user });
-    } else {
-      res.status(401).json({ message: "Invalid details" });
+    if (!user) {
+      // Auto-register if user doesn't exist
+      user = { 
+        name, 
+        contact, 
+        age: "25", 
+        gender: "Not Specified",
+        id: Date.now() 
+      };
+      db.users.push(user);
+      saveDb(db);
+      console.log(`Auto-registered new user: ${name}`);
     }
+
+    res.json({ message: "Login Success", user });
   });
 
   app.post("/api/update-doctor-images", (req, res) => {

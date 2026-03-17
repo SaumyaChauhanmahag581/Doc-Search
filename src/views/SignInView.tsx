@@ -23,7 +23,7 @@ export default function SignInView({ onNavigate, onSubmit }: SignInViewProps) {
             <User size={32} />
           </div>
           <h2 className="text-3xl font-bold text-slate-900">Welcome Back</h2>
-          <p className="text-slate-500 mt-2">Sign in to manage your appointments</p>
+          <p className="text-slate-500 mt-2">Sign in to manage your appointments. Don't worry, if you're new, we'll create an account for you!</p>
         </div>
 
         <form className="space-y-6" onSubmit={onSubmit}>
