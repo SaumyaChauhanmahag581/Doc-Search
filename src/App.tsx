@@ -61,7 +61,8 @@ function App() {
         body: JSON.stringify(Object.fromEntries(formData)),
       });
       if (res.ok) {
-        const user = await res.json();
+        const data = await res.json();
+        const user = data.user;
         setPatient(user);
         localStorage.setItem('user', JSON.stringify(user));
         showFeedback('User Registered Successfully!');

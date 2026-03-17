@@ -23,7 +23,7 @@ export default function RegistrationView({ onNavigate, onSubmit }: RegistrationV
             <User size={40} />
           </div>
           <h2 className="text-4xl font-bold text-slate-900">Patient Registration</h2>
-          <p className="text-slate-500 mt-3 text-lg">Please provide your details to find the best doctors for you.</p>
+          <p className="text-slate-500 mt-3 text-lg">Quick registration—only your name is needed to get started!</p>
         </div>
 
         <form className="space-y-8" onSubmit={onSubmit}>
@@ -31,23 +31,23 @@ export default function RegistrationView({ onNavigate, onSubmit }: RegistrationV
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-2">Full Name</label>
               <input
-                name="name" type="text" required placeholder="Enter your full name"
+                name="name" type="text" placeholder="Enter your full name"
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Age</label>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Age (Optional)</label>
               <input
-                name="age" type="number" required placeholder="Enter your age"
+                name="age" type="number" placeholder="Enter your age"
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">Contact Number</label>
+            <label className="block text-sm font-bold text-slate-700 mb-2">Contact Number (Optional)</label>
             <input
-              name="contact" type="tel" required placeholder="Enter your contact number"
+              name="contact" type="tel" placeholder="Enter your contact number"
               className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
             />
           </div>
@@ -55,10 +55,10 @@ export default function RegistrationView({ onNavigate, onSubmit }: RegistrationV
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-4">Gender</label>
             <div className="flex flex-wrap gap-6">
-              {['Male', 'Female', 'Other'].map((g) => (
+              {['Male', 'Female', 'Other', 'Prefer not to say'].map((g) => (
                 <label key={g} className="flex items-center cursor-pointer group">
                   <div className="relative flex items-center justify-center">
-                    <input type="radio" name="gender" value={g} required className="peer sr-only" />
+                    <input type="radio" name="gender" value={g} className="peer sr-only" />
                     <div className="w-6 h-6 border-2 border-slate-300 rounded-full peer-checked:border-emerald-600 transition-all group-hover:border-emerald-400"></div>
                     <div className="absolute w-3 h-3 bg-emerald-600 rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
                   </div>

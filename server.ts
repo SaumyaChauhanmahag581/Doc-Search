@@ -146,7 +146,16 @@ async function startServer() {
   // User Registration
   app.post("/api/register", (req, res) => {
     const db = getDb();
-    const newUser = { ...req.body, id: Date.now() };
+    const { name, age, contact, gender } = req.body;
+    
+    const newUser = { 
+      name: name || "Anonymous User",
+      age: age || "25",
+      contact: contact || "Not Provided",
+      gender: gender || "Not Specified",
+      id: Date.now() 
+    };
+    
     db.users.push(newUser);
     saveDb(db);
     res.json({ message: "User Registered Successfully", user: newUser });
