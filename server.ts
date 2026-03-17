@@ -6,8 +6,7 @@ import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-const DB_PATH = path.join(process.cwd(), "db.json");
+const DB_PATH = path.join(__dirname, "db.json");
 
 let memoryDb: any = null;
 
@@ -46,8 +45,8 @@ const saveDb = (data: any) => {
 
 async function startServer() {
   const app = express();
-  const PORT = Number(process.env.PORT) || 3001;
-
+  
+  // Important for Vercel: body parsing must come before routes
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -65,8 +64,6 @@ async function startServer() {
         const name = d.name.toLowerCase();
         const spec = d.specialization.toLowerCase();
         const combined = `${name} ${spec}`;
-        
-        // Check if all search terms are present in either name or specialization
         return searchTerms.every(term => combined.includes(term));
       });
     }
@@ -82,7 +79,6 @@ async function startServer() {
     res.json(filteredDoctors);
   });
 
-  // Filter + Search API (Alias for /api/doctors to match user request)
   app.get("/api/search", (req, res) => {
     const { name, specialization, location } = req.query;
     const db = getDb();
@@ -111,7 +107,7 @@ async function startServer() {
     res.json(filteredDoctors);
   });
 
-  app.get("/api/doctors/:id", (req, res): void => {
+  app.get("/api/doctors/:id", (req, res) => {
     const db = getDb();
     const doctor = db.doctors.find((d: any) => d.id === req.params.id);
     if (doctor) {
@@ -121,23 +117,18 @@ async function startServer() {
     }
   });
 
-  // Appointment Endpoints
   app.post("/api/appointments", (req, res) => {
     const appointment = req.body;
     const db = getDb();
-    
     if (!db.appointments) db.appointments = [];
-    
     const newAppointment = {
       ...appointment,
       id: Date.now().toString(),
       status: 'Confirmed',
       createdAt: new Date().toISOString()
     };
-    
     db.appointments.push(newAppointment);
     saveDb(db);
-    
     res.status(201).json(newAppointment);
   });
 
@@ -146,32 +137,20 @@ async function startServer() {
     res.json(db.appointments || []);
   });
 
-  app.delete("/api/appointments/:id", (req, res): void => {
+  app.delete("/api/appointments/:id", (req, res) => {
     const { id } = req.params;
     const db = getDb();
-    
-    if (!db.appointments) {
-      res.status(404).json({ message: "No appointments found" });
-      return;
-    }
-    
+    if (!db.appointments) return res.status(404).json({ message: "No appointments found" });
     const initialLength = db.appointments.length;
     db.appointments = db.appointments.filter((apt: any) => apt.id !== id);
-    
-    if (db.appointments.length === initialLength) {
-      res.status(404).json({ message: "Appointment not found" });
-      return;
-    }
-    
+    if (db.appointments.length === initialLength) return res.status(404).json({ message: "Appointment not found" });
     saveDb(db);
     res.json({ message: "Appointment deleted successfully" });
   });
 
-  // User Registration
   app.post("/api/register", (req, res) => {
-    const db = getDb();
     const { name, age, contact, gender } = req.body;
-    
+    const db = getDb();
     const newUser = { 
       name: name || "Anonymous User",
       age: age || "25",
@@ -179,77 +158,94 @@ async function startServer() {
       gender: gender || "Not Specified",
       id: Date.now() 
     };
-    
     db.users.push(newUser);
     saveDb(db);
     res.json({ message: "User Registered Successfully", user: newUser });
   });
 
-  // User Login
   app.post("/api/login", (req, res) => {
-    const { name, contact } = req.body;
-    
-    if (!name) {
-      return res.status(400).json({ message: "Name is required for login" });
+    try {
+      const { name, contact } = req.body;
+      console.log(`Login attempt for: ${name}`);
+
+      if (!name) {
+        return res.status(400).json({ message: "Name is required for login" });
+      }
+
+      const db = getDb();
+      let user = db.users.find((u: any) => 
+        u.name?.toLowerCase() === name.toLowerCase() && 
+        (!contact || u.contact === contact)
+      );
+
+      if (!user) {
+        user = { 
+          name, 
+          contact: contact || "Not Provided", 
+          age: "25", 
+          gender: "Not Specified",
+          id: Date.now() 
+        };
+        db.users.push(user);
+        saveDb(db);
+        console.log(`Auto-registered new user on login: ${name}`);
+      }
+
+      res.json({ message: "Login Success", user });
+    } catch (err) {
+      console.error("Critical error in /api/login:", err);
+      res.status(500).json({ message: "Internal Server Error during login" });
     }
-
-    const db = getDb();
-    let user = db.users.find((u: any) => 
-      u.name?.toLowerCase() === name.toLowerCase() && 
-      (!contact || u.contact === contact)
-    );
-
-    if (!user) {
-      // Auto-register if user doesn't exist
-      user = { 
-        name, 
-        contact: contact || "Not Provided", 
-        age: "25", 
-        gender: "Not Specified",
-        id: Date.now() 
-      };
-      db.users.push(user);
-      saveDb(db);
-      console.log(`Auto-registered new user on login: ${name}`);
-    }
-
-    res.json({ message: "Login Success", user });
   });
 
   app.post("/api/update-doctor-images", (req, res) => {
     const { maleImage, femaleImage } = req.body;
     const db = getDb();
     db.doctors = db.doctors.map((doc: any) => {
-      if (doc.gender === "Male") {
-        doc.image = maleImage;
-      } else if (doc.gender === "Female") {
-        doc.image = femaleImage;
-      }
+      if (doc.gender === "Male") doc.image = maleImage;
+      else if (doc.gender === "Female") doc.image = femaleImage;
       return doc;
     });
     saveDb(db);
     res.json({ message: "Doctor images updated successfully" });
   });
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+  // Production serving
+  if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
+    const distPath = path.join(__dirname, "dist");
+    app.use(express.static(distPath));
+    app.get("*", (req, res) => {
+      const indexFile = path.join(distPath, "index.html");
+      if (fs.existsSync(indexFile)) {
+        res.sendFile(indexFile);
+      } else {
+        res.status(404).send("Frontend build not found. Please run 'build' first.");
+      }
+    });
+  } else {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-    });
-  } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
   }
 
   return app;
 }
 
-export default startServer();
+// Handler for local and Vercel
+const appPromise = startServer();
+
+if (!process.env.VERCEL) {
+  appPromise.then(app => {
+    const PORT = Number(process.env.PORT) || 3001;
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Local server running on http://localhost:${PORT}`);
+    });
+  });
+}
+
+export default async (req: any, res: any) => {
+  const app = await appPromise;
+  return app(req, res);
+};
