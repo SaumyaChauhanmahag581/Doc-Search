@@ -41,6 +41,27 @@
       "contact": "9999999999",
       "gender": "Male",
       "id": 1773769653010
+    },
+    {
+      "name": "Saumya",
+      "age": "25",
+      "contact": "Not Provided",
+      "gender": "Not Specified",
+      "id": 1773774239697
+    },
+    {
+      "name": "Manthan varma",
+      "age": "25",
+      "contact": "9687280206",
+      "gender": "Male",
+      "id": 1773775009966
+    },
+    {
+      "name": "m",
+      "age": "24",
+      "contact": "7972195083",
+      "gender": "Male",
+      "id": 1773777143326
     }
   ],
   "doctors": [
@@ -945,5 +966,16 @@
       "hospital": "City General Hospital"
     }
   ],
-  "appointments": []
+  "appointments": [
+    {
+      "doctorId": "2",
+      "doctorName": "Dr. Vivaan Patel",
+      "patientName": "m",
+      "date": "2026-03-17",
+      "time": "04:00 PM",
+      "id": "1773777202273",
+      "status": "Confirmed",
+      "createdAt": "2026-03-17T19:53:22.273Z"
+    }
+  ]
 }
