@@ -238,6 +238,9 @@ async function startServer() {
       appType: "spa",
     });
     app.use(vite.middlewares);
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
   } else {
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
@@ -246,9 +249,7 @@ async function startServer() {
     });
   }
 
-
-    return app;
-  });
+  return app;
 }
 
 export default startServer();
