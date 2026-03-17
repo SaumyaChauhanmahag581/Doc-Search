@@ -9,15 +9,39 @@ const __dirname = path.dirname(__filename);
 
 const DB_PATH = path.join(process.cwd(), "db.json");
 
+let memoryDb: any = null;
+
 const getDb = () => {
-  if (!fs.existsSync(DB_PATH)) {
-    return { users: [], doctors: [] };
+  if (memoryDb) return memoryDb;
+  
+  try {
+    if (!fs.existsSync(DB_PATH)) {
+      memoryDb = { users: [], doctors: [], appointments: [] };
+    } else {
+      const data = fs.readFileSync(DB_PATH, "utf-8");
+      memoryDb = JSON.parse(data);
+    }
+  } catch (err) {
+    console.error("Error reading DB, using memory fallback:", err);
+    memoryDb = { users: [], doctors: [], appointments: [] };
   }
-  return JSON.parse(fs.readFileSync(DB_PATH, "utf-8"));
+
+  // Ensure arrays exist
+  if (!memoryDb.users) memoryDb.users = [];
+  if (!memoryDb.doctors) memoryDb.doctors = [];
+  if (!memoryDb.appointments) memoryDb.appointments = [];
+
+  return memoryDb;
 };
 
 const saveDb = (data: any) => {
-  fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+  memoryDb = data;
+  try {
+    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+  } catch (err) {
+    // Vercel/Serverless environments have read-only filesystems
+    console.warn("Could not save to disk (normal for Vercel), keeping in memory:", err);
+  }
 };
 
 async function startServer() {
