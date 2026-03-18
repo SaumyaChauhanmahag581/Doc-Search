@@ -68,6 +68,9 @@ function App() {
         showFeedback('User Registered Successfully!');
         setActiveView('home');
       } else {
+        console.error('Registration failed with status:', res.status);
+        const errorText = await res.text();
+        console.error('Registration error details:', errorText);
         showFeedback('Registration failed. Please try again.', 'error');
       }
     } catch (err) {

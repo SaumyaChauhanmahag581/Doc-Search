@@ -23,7 +23,7 @@ export default function RegistrationView({ onNavigate, onSubmit }: RegistrationV
             <User size={40} />
           </div>
           <h2 className="text-4xl font-bold text-slate-900">Patient Registration</h2>
-          <p className="text-slate-500 mt-3 text-lg">Quick registration—only your name is needed to get started!</p>
+          <p className="text-slate-500 mt-3 text-lg">Please fill in all details to create your account.</p>
         </div>
 
         <form className="space-y-8" onSubmit={onSubmit}>
@@ -36,18 +36,18 @@ export default function RegistrationView({ onNavigate, onSubmit }: RegistrationV
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Age (Optional)</label>
+              <label className="block text-sm font-bold text-slate-700 mb-2">Age</label>
               <input
-                name="age" type="number" placeholder="Enter your age"
+                name="age" type="number" required placeholder="Enter your age"
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">Contact Number (Optional)</label>
+            <label className="block text-sm font-bold text-slate-700 mb-2">Contact Number</label>
             <input
-              name="contact" type="tel" placeholder="Enter your contact number"
+              name="contact" type="tel" required placeholder="Enter your contact number"
               className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
             />
           </div>
